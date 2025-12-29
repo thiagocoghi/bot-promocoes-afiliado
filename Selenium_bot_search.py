@@ -1,80 +1,67 @@
-import os
-
 from playwright.sync_api import sync_playwright
+import os
 import time
 import random
 
 
-def buscar_promos():
-    # Verifica se o arquivo de sessão existe
-    if not os.path.exists("auth.json"):
-        print("❌ Erro: arquivo 'auth.json' não encontrado! Rode o 'gerar_sessao.py' primeiro.")
-        return
+def buscar_promos_perfil_real():
+    user_data_dir = os.path.join(os.getcwd(), "perfil_shopee")
 
     with sync_playwright() as p:
+        print("🚀 Abrindo navegador com perfil salvo...")
 
-        print("🚀 Iniciando navegador com sua sessão logada...")
-        # Lançamos o navegador com argumentos que ajudam a evitar detecção
-        browser = p.chromium.launch(headless=False, args=[
-            "--disable-blink-features=AutomationControlled",
-            "--no-sandbox"
-        ])
-
-        context = browser.new_context(
-            storage_state="auth.json",
-            user_agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+        context = p.chromium.launch_persistent_context(
+            user_data_dir,
+            headless=False,
+            args=["--disable-blink-features=AutomationControlled"],
             viewport={'width': 1280, 'height': 720}
         )
 
         page = context.new_page()
 
-        # Scripts manuais para esconder que é um bot (o que o stealth faria)
-        page.add_init_script("""
-            Object.defineProperty(navigator, 'webdriver', {get: () => undefined});
-            window.chrome = { runtime: {} };
-            Object.defineProperty(navigator, 'languages', {get: () => ['pt-BR', 'pt', 'en']});
-        """)
-
         try:
-            print("Acessando Shopee...")
-            # Vamos para a home primeiro para "aquecer" a sessão
-            page.goto("https://shopee.com.br", wait_until="domcontentloaded", timeout=60000)
-            time.sleep(random.uniform(3, 5))
+            print("🔗 Acessando Shopee...")
+            # Aumentamos o timeout para lidar com o redirecionamento pós-login
+            page.goto("https://shopee.com.br/flash_sale", wait_until="load", timeout=90000)
 
-            # Agora vamos para as ofertas relâmpago
-            page.goto("https://shopee.com.br/flash_sale", wait_until="domcontentloaded")
-
-            print("Aguardando carregamento dos produtos...")
-            # Espera 10 segundos para o conteúdo dinâmico carregar
+            print("⏳ Aguardando estabilização da página...")
+            # Espera um pouco mais caso o site esteja processando o login
             time.sleep(10)
 
-            # Rola a página para ativar o lazy load
-            page.mouse.wheel(0, 1500)
-            time.sleep(2)
+            # Rola a página aos poucos para carregar os produtos (Lazy Load)
+            print("🖱️ Carregando produtos...")
+            for _ in range(3):
+                page.mouse.wheel(0, 800)
+                time.sleep(2)
 
-            # Busca os nomes dos produtos
-            # Seletor atualizado para garantir a captura
-            produtos = page.query_selector_all(".flash-sale-item-card")
+            # O seletor da Shopee pode mudar. Vamos tentar um mais genérico se o específico falhar
+            selector = ".flash-sale-item-card"
 
-            if produtos:
-                print(f"✅ Sucesso! Encontrados {len(produtos)} produtos.")
-                for item in produtos[:5]:
-                    nome = item.query_selector(".flash-sale-item-card__item-name").inner_text()
-                    print(f"📦 {nome}")
-            else:
-                print("⚠️ Nenhum produto encontrado. Verifique a imagem 'debug.png'")
-                page.screenshot(path="debug.png")
+            try:
+                page.wait_for_selector(selector, timeout=15000)
+                cards = page.query_selector_all(selector)
+
+                if cards:
+                    print(f"✅ Sucesso! Encontrados {len(cards)} produtos.")
+                    for item in cards[:5]:
+                        nome = item.query_selector(".flash-sale-item-card__item-name").inner_text()
+                        print(f"📦 {nome}")
+                else:
+                    print("⚠️ Seletor encontrado, mas sem itens dentro.")
+            except:
+                print("⚠️ Seletor específico não encontrado. Tentando captura alternativa...")
+                # Backup: tenta pegar qualquer link que pareça um produto
+                links = page.query_selector_all("a[href*='product']")
+                print(f"Encontrados {len(links)} links de produtos via backup.")
 
         except Exception as e:
             print(f"❌ Erro: {e}")
-            page.screenshot(path="erro_fatal.png")
 
         finally:
-            print("Fechando navegador...")
+            print("Encerrando... Não feche a janela manualmente, o script fará isso.")
             time.sleep(5)
-            browser.close()
+            context.close()
 
 
 if __name__ == "__main__":
-    dados = buscar_promos()
-    print(f"\nBusca finalizada. {len(dados)} itens prontos para conversão.")
+    buscar_promos_perfil_real()

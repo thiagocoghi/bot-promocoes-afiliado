@@ -1,4 +1,6 @@
-*auth.json
 .venv/
+perfil_shopee/
+ofertas.db
+auth.json
 __pycache__/
-*.pyc
+*.png
