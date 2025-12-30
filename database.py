@@ -1,15 +1,30 @@
 import sqlite3
 
+def adicionar_coluna_postada():
+    conn = sqlite3.connect('ofertas.db')
+    cursor = conn.cursor()
+    try:
+        # Adiciona a coluna 'postada' com valor padrão 0 (não postada)
+        cursor.execute("ALTER TABLE ofertas ADD COLUMN postada INTEGER DEFAULT 0")
+        conn.commit()
+        print("✅ Coluna 'postada' adicionada com sucesso!")
+    except sqlite3.OperationalError:
+        print("⚠️ A coluna 'postada' já existe ou a tabela não foi encontrada.")
+    finally:
+        conn.close()
+
+if __name__ == "__main__":
+    adicionar_coluna_postada()
+
 def iniciar_db():
     conn = sqlite3.connect('ofertas.db')
     cursor = conn.cursor()
-    # Criamos a tabela se ela não existir
-    # Usamos o link como chave única para evitar duplicatas
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS ofertas (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             nome TEXT,
-            preco TEXT,
+            preco_atual TEXT,
+            preco_antigo TEXT,
             link_original TEXT UNIQUE,
             link_afiliado TEXT,
             data_captura TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -19,29 +34,31 @@ def iniciar_db():
     conn.commit()
     conn.close()
 
-def salvar_oferta(nome, preco, link):
+def salvar_oferta(nome, preco_atual, preco_antigo, link):
     conn = sqlite3.connect('ofertas.db')
     cursor = conn.cursor()
     try:
         cursor.execute('''
-            INSERT INTO ofertas (nome, preco, link_original)
-            VALUES (?, ?, ?)
-        ''', (nome, preco, link))
+            INSERT INTO ofertas (nome, preco_atual, preco_antigo, link_original)
+            VALUES (?, ?, ?, ?)
+        ''', (nome, preco_atual, preco_antigo, link))
         conn.commit()
-        return True # Nova oferta salva
+        return True
     except sqlite3.IntegrityError:
-        return False # Oferta já existia (link duplicado)
+        return False
     finally:
         conn.close()
 
-def buscar_ofertas_nao_convertidas():
+
+def buscar_ofertas_nao_convertidas(limite=5):
+    """Retorna links originais que ainda precisam passar pelo conversor."""
     conn = sqlite3.connect('ofertas.db')
     cursor = conn.cursor()
-    # Busca ofertas onde o link_afiliado ainda é nulo
-    cursor.execute('SELECT id, link_original FROM ofertas WHERE link_afiliado IS NULL')
-    ofertas = cursor.fetchall()
+    # Pega apenas links que não foram convertidos E não foram postados
+    cursor.execute("SELECT id, link_original FROM ofertas WHERE link_afiliado IS NULL AND postada = 0 LIMIT ?", (limite,))
+    resultado = cursor.fetchall()
     conn.close()
-    return ofertas
+    return resultado
 
 def atualizar_link_afiliado(id_oferta, link_convertido):
     conn = sqlite3.connect('ofertas.db')
@@ -56,3 +73,30 @@ def atualizar_link_afiliado(id_oferta, link_convertido):
 
 # Inicializa o banco ao importar este módulo
 #iniciar_db()
+
+def buscar_proxima_oferta_para_postar():
+    conn = sqlite3.connect('ofertas.db')
+    cursor = conn.cursor()
+    # Garantimos que pegamos apenas onde postada é ZERO
+    cursor.execute('''
+        SELECT id, nome, preco_atual, preco_antigo, link_afiliado 
+        FROM ofertas 
+        WHERE link_afiliado IS NOT NULL AND postada = 0
+        ORDER BY id ASC LIMIT 1
+    ''')
+    oferta = cursor.fetchone()
+    conn.close()
+    return oferta
+
+# No database.py:
+def marcar_como_postada(id_db):
+    conn = sqlite3.connect('ofertas.db')
+    cursor = conn.cursor()
+    # Atualiza ambos os campos para manter o banco organizado
+    cursor.execute('''
+        UPDATE ofertas 
+        SET postada = 1, enviado_whatsapp = 1 
+        WHERE id = ?
+    ''', (id_db,))
+    conn.commit()
+    conn.close()

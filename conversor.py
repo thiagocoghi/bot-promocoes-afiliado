@@ -1,46 +1,77 @@
 from playwright.sync_api import sync_playwright
 import os
 import time
-
+from database import buscar_ofertas_nao_convertidas, atualizar_link_afiliado
 
 def converter_link_shopee(link_original):
     user_data_dir = os.path.join(os.getcwd(), "perfil_shopee")
 
     with sync_playwright() as p:
-        # Usa o mesmo perfil do scraper
         browser = p.chromium.launch_persistent_context(
             user_data_dir,
-            headless=False,  # Mantenha False para ver se ele acerta o campo
+            headless=False,
             args=["--disable-blink-features=AutomationControlled"]
         )
-        page = browser.new_page()  # Aqui definimos o 'page' corretamente
+        page = browser.new_page()
 
         try:
-            print(f"🔄 Acessando painel para converter...")
-            page.goto("https://affiliate.shopee.com.br/promotion/custom_link", wait_until="networkidle", timeout=60000)
+            print(f"🔄 Convertendo: {link_original[:50]}...")
+            page.goto("https://affiliate.shopee.com.br/offer/custom_link", wait_until="networkidle")
 
-            # Aguarda o campo de texto (textarea)
-            page.wait_for_selector('textarea', timeout=15000)
+            # 1. Preenche o link
+            page.wait_for_selector('textarea', timeout=20000)
             page.fill('textarea', link_original)
 
-            # Clica no botão de obter link
-            # Tentamos pelo texto do botão que é mais estável
+            # 2. Clica no botão de gerar
             page.click('button:has-text("Obter Link"), button:has-text("Get Link")')
 
-            # Aguarda o link curto aparecer (geralmente em um input ou div específica)
-            time.sleep(5)
+            print("⏳ Aguardando Pop-up de sucesso...")
 
-            # Captura o link curto gerado
-            # O seletor abaixo busca o input que contém o link convertido
-            link_convertido = page.locator(
-                'div.short-link-display input, .final-link-input, input[readonly]').first.get_attribute('value')
+            # 3. Espera o modal aparecer usando a classe que você identificou
+            # Vamos esperar especificamente pela textarea dentro do modal
+            seletor_modal_link = ".success-modal-content textarea"
+            page.wait_for_selector(seletor_modal_link, timeout=15000)
 
-            if link_convertido and "shope.ee" in link_convertido:
-                return link_convertido
+            # 4. CAPTURA DO LINK
+            # No caso de textareas, usamos .input_value() ou .inner_text()
+            link_final = page.locator(seletor_modal_link).input_value()
+
+            if not link_final or "shopee.com.br" not in link_final:
+                # Backup caso o input_value falhe
+                link_final = page.locator(seletor_modal_link).inner_text()
+
+            if link_final:
+                print(f"✅ Link capturado do Modal: {link_final}")
+                return link_final.strip()
+
             return None
 
         except Exception as e:
-            print(f"❌ Erro interno no conversor: {e}")
+            print(f"❌ Erro no conversor: {e}")
+            page.screenshot(path="debug_modal.png")  # Para análise caso mude de novo
             return None
         finally:
             browser.close()
+
+    # Certifique-se de que NÃO existam espaços antes do 'def' abaixo
+
+
+def executar_conversao_em_lote(limite=5):
+    """Busca links brutos no banco e converte para link de afiliado."""
+    from database import buscar_ofertas_nao_convertidas, atualizar_link_afiliado
+
+    ofertas = buscar_ofertas_nao_convertidas(limite=limite)
+
+    if not ofertas:
+        print("📭 info: Nenhuma oferta nova para converter no banco.")
+        return False  # Retorna False para avisar o orquestrador que não houve trabalho
+
+    for id_db, link_original in ofertas:
+        link_afiliado = converter_link_shopee(link_original)
+
+        if link_afiliado:
+            atualizar_link_afiliado(id_db, link_afiliado)
+            print(f"✅ Oferta {id_db} convertida com sucesso.")
+        else:
+            print(f"❌ Falha ao converter oferta {id_db}.")
+    return True

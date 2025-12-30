@@ -10,7 +10,7 @@ def buscar_promos_perfil_real():
     iniciar_db()
 
     user_data_dir = os.path.join(os.getcwd(), "perfil_shopee")
-    novas_ofertas_count = 0
+    novas_ofertas= 0
 
     with sync_playwright() as p:
         print("🚀 Abrindo navegador...")
@@ -44,36 +44,40 @@ def buscar_promos_perfil_real():
 
                 for i, link_element in enumerate(produtos_encontrados[:20]):
                     try:
+                        # 1. Captura o Link e o Texto Bruto para análise rápida
                         link = link_element.get_attribute("href")
-                        if not link: continue
-
-                        # Formata o link
                         link_completo = f"https://shopee.com.br{link}" if link.startswith("/") else link
 
-                        # Captura o texto (Nome e Preço)
-                        texto = link_element.inner_text().strip()
+                        # 2. Captura o Nome do Produto (Classe EAIlz5)
+                        nome_el = link_element.locator('.EAIlz5')
+                        nome = nome_el.inner_text().strip() if nome_el.count() > 0 else "Produto sem nome"
 
-                        if texto and "\n" in texto:
-                            linhas = texto.split("\n")
-                            nome = linhas[0]
-                            # Tenta achar o preço na estrutura do texto
-                            preco = "Consultar"
-                            for linha in linhas:
-                                if "R$" in linha:
-                                    preco = linha
-                                    break
+                        # 3. Captura o Preço ANTIGO (Classe qukW3P - o valor riscado)
+                        # No seu HTML: <strong class="iwH3_q">253,89</strong> dentro da div qukW3P
+                        preco_antigo_el = link_element.locator('.qukW3P .iwH3_q')
+                        preco_antigo = f"R$ {preco_antigo_el.inner_text().strip()}" if preco_antigo_el.count() > 0 else "---"
 
-                            # TENTA SALVAR NO SQLITE
-                            foi_salvo = salvar_oferta(nome, preco, link_completo)
+                        # 4. Captura o Preço ATUAL (Classe w6Dcnx - o valor da oferta)
+                        # No seu HTML: <strong class="iwH3_q">182,90</strong> dentro da div w6Dcnx
+                        preco_atual_el = link_element.locator('.w6Dcnx .iwH3_q')
+                        preco_atual = f"R$ {preco_atual_el.inner_text().strip()}" if preco_atual_el.count() > 0 else "Consultar"
 
+                        # 5. Captura a Porcentagem de Desconto (Opcional, mas ótimo para o post)
+                        desconto_el = link_element.locator('.EKx6p6')
+                        desconto = desconto_el.inner_text().strip() if desconto_el.count() > 0 else ""
+
+                        # SALVAR NO BANCO
+                        if nome and preco_atual != "Consultar":
+                            # Podemos concatenar o desconto ao nome ou criar uma coluna nova
+                            nome_com_desconto = f"{nome} ({desconto})" if desconto else nome
+
+                            foi_salvo = salvar_oferta(nome_com_desconto, preco_atual, preco_antigo, link_completo)
                             if foi_salvo:
-                                print(f"✨ NOVA NO BANCO: {nome} | {preco}")
-                                novas_ofertas_count += 1
-                            else:
-                                # Se quiser logar que já existe:
-                                # print(f"🔘 Já existe: {nome[:30]}...")
-                                pass
+                                novas_ofertas += 1  # Incrementa apenas se for uma oferta nova
+                                print(f"✨ SALVO: {preco_antigo} -> {preco_atual} | {nome[:30]}...")
+
                     except Exception as e:
+                        print(f"⚠️ Erro ao processar item: {e}")
                         continue
             else:
                 print("⚠️ Nenhum produto encontrado na página.")
@@ -82,11 +86,13 @@ def buscar_promos_perfil_real():
             print(f"❌ Erro crítico: {e}")
 
         finally:
-            print(f"\n📊 Resumo: {novas_ofertas_count} novas ofertas salvas em 'ofertas.db'.")
+            print(f"\n📊 Resumo: {novas_ofertas} novas ofertas salvas no Banco de Dados.")
             print("Encerrando...")
             time.sleep(5)
             context.close()
 
 
+
 if __name__ == "__main__":
     buscar_promos_perfil_real()
+

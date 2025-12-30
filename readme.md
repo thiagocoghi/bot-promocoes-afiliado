@@ -82,11 +82,11 @@ Faça o login no painel de afiliado e pressione Enter no terminal.
 
 * [x] Fase 2: Persistência de sessão (Login manual -> Cookies).
 
-* [ ] Fase 3: Conversor automático de links no painel de afiliado.
+* [x] Fase 3: Conversor automático de links no painel de afiliado.
 
 * [x] Fase 4: Banco de dados simples para evitar duplicatas.
 
-* [ ] Fase 5: Integração com API de WhatsApp/Telegram.
+* [x] Fase 5: Integração com API de WhatsApp/Telegram.
 
 * [ ] Fase 6: Suporte para Amazon e outros marketplaces.
 

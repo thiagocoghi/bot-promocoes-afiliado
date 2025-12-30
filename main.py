@@ -3,6 +3,7 @@ import random  # <--- Faltava este import
 from database import buscar_ofertas_nao_convertidas, atualizar_link_afiliado
 from Playright_bot_search import buscar_promos_perfil_real
 from conversor import converter_link_shopee
+import os
 
 
 def executar_ciclo_completo():
@@ -12,7 +13,7 @@ def executar_ciclo_completo():
 
     # 2. Busca o que precisa converter
     print("\n--- 🔗 INICIANDO CONVERSÃO DE LINKS ---")
-    ofertas = buscar_ofertas_nao_convertidas()
+    ofertas = buscar_ofertas_nao_convertidas(limite=limite)
 
     if not ofertas:
         print("✅ Tudo atualizado!")
