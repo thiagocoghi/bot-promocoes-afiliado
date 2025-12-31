@@ -12,8 +12,8 @@ def iniciar_sistema_automatico():
     while True:
         # Modo Dormir (00h às 07h)
         hora_atual = datetime.now().hour
-        hora_teste = hora_atual-2
-        if 0 <= hora_teste < 7:
+        hora_atual -=3
+        if 0 <= hora_atual< 7:
             log_info(f"💤 Horário de descanso ({hora_atual}h). Aguardando amanhecer...")
             time.sleep(1800)
             continue

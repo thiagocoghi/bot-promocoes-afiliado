@@ -85,3 +85,41 @@
 2025-12-31 00:53:54,999 - INFO - ✅ Postado com sucesso: Parafusadeira Furade
 2025-12-31 00:53:55,978 - INFO - ⏳ Pausa de segurança: 0 minutos.
  -----------------------------------------------
+2025-12-31 01:23:02,175 - INFO - 
+ ----------------------------------------------- 
+ 🤖 Sistema de Orquestração Iniciado.
+ -----------------------------------------------
+2025-12-31 01:23:02,175 - INFO - 🔄 Verificando banco de dados...
+2025-12-31 01:23:02,177 - INFO - 📭 Estoque vazio. Buscando novas promoções na Shopee...
+2025-12-31 01:23:29,798 - INFO - 🔗 Iniciando conversão de lote...
+2025-12-31 01:23:36,823 - INFO - ✅ Link capturado: https://s.shopee.com.br/6pu5H9Be0D
+2025-12-31 01:23:38,346 - INFO - ✅ Oferta 67 convertida com sucesso. 
+ -----------------------------------------------
+2025-12-31 01:23:45,136 - INFO - ✅ Link capturado: https://s.shopee.com.br/13l8bAr89
+2025-12-31 01:23:46,839 - INFO - ✅ Oferta 68 convertida com sucesso. 
+ -----------------------------------------------
+2025-12-31 01:23:53,733 - INFO - ✅ Link capturado: https://s.shopee.com.br/6faf4rP4dt
+2025-12-31 01:23:55,128 - INFO - ✅ Oferta 69 convertida com sucesso. 
+ -----------------------------------------------
+2025-12-31 01:24:02,126 - INFO - ✅ Link capturado: https://s.shopee.com.br/1VsYvNI0eN
+2025-12-31 01:24:03,466 - INFO - ✅ Oferta 70 convertida com sucesso. 
+ -----------------------------------------------
+2025-12-31 01:24:10,214 - INFO - ✅ Link capturado: https://s.shopee.com.br/6KxogGd8ca
+2025-12-31 01:24:11,647 - INFO - ✅ Oferta 71 convertida com sucesso. 
+ -----------------------------------------------
+2025-12-31 01:24:11,647 - INFO - 📱 Iniciando ciclo de 5 postagens... 
+ -----------------------------------------------
+2025-12-31 01:24:12,967 - INFO - 🚀 Tentando postar: POEDAGAR Relógios Masculinos D...
+2025-12-31 01:24:23,451 - INFO - 📸 Aguardando 6s para carregar a prévia da imagem...
+2025-12-31 01:24:35,592 - INFO - ✅ Postado com sucesso: POEDAGAR Relógios Ma
+-----------------------------------------------
+2025-12-31 01:24:36,477 - INFO - ⏳ Pausa de segurança: 0 minutos.
+ -----------------------------------------------
+2025-12-31 01:24:48,810 - INFO - 🚀 Tentando postar: Kit 10 ou 5 Cuecas Boxer Mascu...
+2025-12-31 01:24:58,612 - INFO - 📸 Aguardando 6s para carregar a prévia da imagem...
+2025-12-31 01:25:10,920 - INFO - ✅ Postado com sucesso: Kit 10 ou 5 Cuecas B
+-----------------------------------------------
+2025-12-31 01:25:11,959 - INFO - ⏳ Pausa de segurança: 0 minutos.
+ -----------------------------------------------
+2025-12-31 01:25:26,446 - ERROR - Task was destroyed but it is pending!
+task: <Task pending name='Task-320' coro=<Connection.run.<locals>.init() running at D:\Curso-Programa\bot-promocoes-afiliado\.venv\Lib\site-packages\playwright\_impl\_connection.py:310> wait_for=<Future pending cb=[Task.task_wakeup()]> cb=[ProtocolCallback.__init__.<locals>.cb() at D:\Curso-Programa\bot-promocoes-afiliado\.venv\Lib\site-packages\playwright\_impl\_connection.py:230]>
