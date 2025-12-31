@@ -2,6 +2,8 @@ from playwright.sync_api import sync_playwright
 import os
 import time
 from database import buscar_proxima_oferta_para_postar, marcar_como_postada
+from logs import log_info, log_erro
+
 
 NOME_DO_GRUPO = "Meu Numero"
 
@@ -21,6 +23,7 @@ def postar_no_whatsapp():
 
     if not oferta:
         print("📭 Nenhuma oferta pronta para postar.")
+        log_info("📭 Fila vazia no banco de dados.")
         return False
 
     id_db, nome, preco_atual, preco_antigo, link = oferta
@@ -47,6 +50,7 @@ def postar_no_whatsapp():
         page = browser.new_page()
 
         try:
+            log_info(f"🚀 Tentando postar: {nome[:30]}...")
             page.goto("https://web.whatsapp.com")
             print("⏳ Aguardando WhatsApp...")
             page.wait_for_selector('div[contenteditable="true"][data-tab="3"]', timeout=60000)
@@ -60,16 +64,28 @@ def postar_no_whatsapp():
             # Escreve e envia
             campo_texto = page.locator('footer div[contenteditable="true"][data-tab="10"]')
             campo_texto.fill(mensagem)
-            time.sleep(1)
+            log_info("📸 Aguardando 6s para carregar a prévia da imagem...")
+            time.sleep(10)  # Tempo para revisar a mensagem antes de enviar
             page.keyboard.press("Enter")
             time.sleep(2)  # Espera o envio processar
 
             marcar_como_postada(id_db)
+            log_info(f"✅ Postado com sucesso: {nome[:20]}")
             print(f"✅ Postado com sucesso: {nome[:20]}")
             return True
 
         except Exception as e:
-            print(f"❌ Erro ao postar: {e}")
+            # Captura de tela em caso de erro
+            print(f"❌ Erro detectado. Tirando print da tela...")
+            if not os.path.exists("prints_erro"):
+                os.makedirs("prints_erro")
+
+            timestamp = datetime.now().strftime("%H-%M-%S")
+            caminho_print = f"prints_erro/erro_{id_db}_{timestamp}.png"
+            page.screenshot(path=caminho_print)
+
+            log_erro(f"Falha na postagem ID {id_db}: {e}. Print salvo em: {caminho_print}")
             return False
+
         finally:
             browser.close()
