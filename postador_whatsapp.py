@@ -60,7 +60,7 @@ def postar_no_whatsapp():
             # Escreve e envia
             campo_texto = page.locator('footer div[contenteditable="true"][data-tab="10"]')
             campo_texto.fill(mensagem)
-            time.sleep(1)
+            time.sleep(10)  # Pequena pausa para garantir que o texto foi inserido e aparece a imagem do link
             page.keyboard.press("Enter")
             time.sleep(2)  # Espera o envio processar
 
