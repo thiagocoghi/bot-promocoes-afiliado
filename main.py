@@ -1,44 +1,45 @@
 import time
-import random  # <--- Faltava este import
-from database import buscar_ofertas_nao_convertidas, atualizar_link_afiliado
-from Playright_bot_search import buscar_promos_perfil_real
-from conversor import converter_link_shopee
-import os
+from database import iniciar_db, limpar_banco_de_dados
+# Supondo que você tenha suas funções principais no orquestrador
+from orquestrador import iniciar_sistema_automatico
+from logs import log_info, log_erro
+
+# CONFIGURAÇÃO DE TEMPO
+INTERVALO_LIMPEZA = 6 * 60 * 60  # 6 horas (em segundos)
 
 
-def executar_ciclo_completo():
-    # 1. Busca novas ofertas
-    print("\n--- 🔎 INICIANDO BUSCA DE OFERTAS ---")
-    buscar_promos_perfil_real()
+def main():
+    # 1. Preparação Inicial
+    iniciar_db()
+    log_info("🤖 Bot iniciado! Banco de dados conectado.")
 
-    # 2. Busca o que precisa converter
-    print("\n--- 🔗 INICIANDO CONVERSÃO DE LINKS ---")
-    ofertas = buscar_ofertas_nao_convertidas(limite=limite)
+    # Define a ultima limpeza para AGORA, para ele não limpar logo de cara (ou 0 se quiser que limpe já)
+    ultima_limpeza = time.time()
 
-    if not ofertas:
-        print("✅ Tudo atualizado!")
-        return
-
-    print(f"Encontradas {len(ofertas)} ofertas para converter.")
-
-    for id_db, link_orig in ofertas:
+    # 2. Loop Infinito
+    while True:
         try:
-            link_afiliado = converter_link_shopee(link_orig)
+            # --- TAREFA A: Limpeza do Banco (Manutenção) ---
+            agora = time.time()
+            if agora - ultima_limpeza > INTERVALO_LIMPEZA:
+                log_info("🧹 Iniciando rotina de limpeza agendada...")
+                limpar_banco_de_dados(dias=2)
+                ultima_limpeza = agora  # Reseta o cronômetro
 
-            if link_afiliado:
-                atualizar_link_afiliado(id_db, link_afiliado)
-                print(f"✅ ID {id_db} convertido: {link_afiliado}")
-            else:
-                print(f"⚠️ Falha ao converter ID {id_db}")
+            # --- TAREFA B: Executar o trabalho real (Orquestrador) ---
+            # Aqui chamamos o orquestrador para buscar, converter e postar
+            iniciar_sistema_automatico()
 
-            # Pausa para evitar bloqueio por velocidade no painel
-            espera = random.uniform(3, 7)
-            print(f"Aguardando {espera:.2f}s para o próximo...")
-            time.sleep(espera)
+            # --- TAREFA C: Descanso ---
+            time.sleep(1)
 
+        except KeyboardInterrupt:
+            log_info("🛑 Bot parado pelo usuário.")
+            break
         except Exception as e:
-            print(f"❌ Erro no ciclo: {e}")
+            log_erro(f"💥 Erro fatal no Loop Principal: {e}")
+            time.sleep(10)  # Espera um pouco antes de tentar reiniciar o loop
 
 
 if __name__ == "__main__":
-    executar_ciclo_completo()
+    main()

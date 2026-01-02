@@ -2,7 +2,7 @@ from playwright.sync_api import sync_playwright
 import os
 import time
 from database import buscar_ofertas_nao_convertidas, atualizar_link_afiliado
-from logs import log_info
+from logs import log_info, log_erro
 
 
 def converter_link_shopee(link_original):
@@ -51,6 +51,7 @@ def converter_link_shopee(link_original):
 
         except Exception as e:
             print(f"❌ Erro no conversor: {e}")
+            log_erro(f"❌ Erro no conversor: {e}❌")
             page.screenshot(path="debug_modal.png")  # Para análise caso mude de novo
             return None
         finally:
@@ -76,7 +77,8 @@ def executar_conversao_em_lote(limite=5):
         if link_afiliado:
             atualizar_link_afiliado(id_db, link_afiliado)
             print(f"✅ Oferta {id_db} convertida com sucesso.")
-            log_info(f"✅ Oferta {id_db} convertida com sucesso. \n -----------------------------------------------")
+            log_info(f"✅ Oferta {id_db} convertida com sucesso. \n" + "-" * 80)
         else:
             print(f"❌ Falha ao converter oferta {id_db}.")
+            log_erro(f"❌ Falha ao converter oferta {id_db}.❌")
     return True

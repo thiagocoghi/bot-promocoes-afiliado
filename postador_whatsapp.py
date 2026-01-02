@@ -5,7 +5,7 @@ from database import buscar_proxima_oferta_para_postar, marcar_como_postada
 from logs import log_info, log_erro
 
 
-NOME_DO_GRUPO = "Meu Numero"
+NOME_DO_GRUPO = "Obra"
 
 # --- A FUNÇÃO PRECISA ESTAR AQUI ---
 def calcular_desconto(de, por):
@@ -64,7 +64,7 @@ def postar_no_whatsapp():
             # Escreve e envia
             campo_texto = page.locator('footer div[contenteditable="true"][data-tab="10"]')
             campo_texto.fill(mensagem)
-            log_info("📸 Aguardando 6s para carregar a prévia da imagem...")
+            log_info("📸 Aguardando 10s para carregar a prévia da imagem...")
             time.sleep(10)  # Tempo para revisar a mensagem antes de enviar
             page.keyboard.press("Enter")
             time.sleep(2)  # Espera o envio processar
@@ -77,6 +77,7 @@ def postar_no_whatsapp():
         except Exception as e:
             # Captura de tela em caso de erro
             print(f"❌ Erro detectado. Tirando print da tela...")
+            log_erro("❌ Erro durante postagem no WhatsApp, verifique o print.")
             if not os.path.exists("prints_erro"):
                 os.makedirs("prints_erro")
 
