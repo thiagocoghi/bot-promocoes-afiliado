@@ -54,3 +54,152 @@ Call log:
 2026-01-02 00:23:14,168 - INFO - ⏳ Pausa de segurança: 20 minutos.
 --------------------------------------------------------------------------------
 2026-01-02 00:25:40,375 - INFO - 🛑 Bot parado pelo usuário.
+2026-01-02 00:36:52,020 - INFO - 🧹 Manutenção: 36 registros antigos removidos.
+2026-01-02 00:40:03,667 - INFO - 🧹 Manutenção: Nenhum registro antigo para remover.
+2026-01-02 00:51:25,092 - INFO - 🧹 Manutenção: Nenhum registro antigo para remover.
+2026-01-02 00:51:28,055 - INFO - 🧹 Manutenção: Nenhum registro antigo para remover.
+2026-01-02 00:51:28,099 - INFO - 
+----------------------------------------
+🤖 Sistema de Orquestração Iniciado.
+----------------------------------------
+2026-01-02 00:51:28,099 - INFO - 🔄 Verificando banco de dados...
+2026-01-02 00:51:38,104 - INFO - 
+----------------------------------------
+🤖 Sistema de Orquestração Iniciado.
+----------------------------------------
+2026-01-02 00:51:38,104 - INFO - 🔄 Verificando banco de dados...
+2026-01-02 00:52:06,424 - INFO - 🧹 Manutenção: Nenhum registro antigo para remover.
+2026-01-02 00:52:06,467 - INFO - 
+----------------------------------------
+🤖 Sistema de Orquestração Iniciado.
+----------------------------------------
+2026-01-02 00:52:06,467 - INFO - 🔄 Verificando banco de dados...
+2026-01-02 00:52:06,469 - INFO - 📦 Links pendentes encontrados no banco. Pulando busca.
+--------------------------------------------------------------------------------
+2026-01-02 00:52:06,469 - INFO - 🔗 Iniciando conversão de lote...
+2026-01-02 00:52:13,466 - INFO - ✅ Link capturado: https://s.shopee.com.br/7KqP1gyLeU
+2026-01-02 00:52:15,193 - INFO - ✅ Oferta 6 convertida com sucesso. 
+--------------------------------------------------------------------------------
+2026-01-02 00:52:23,805 - INFO - ✅ Link capturado: https://s.shopee.com.br/W04t96MLM
+2026-01-02 00:52:25,300 - INFO - ✅ Oferta 7 convertida com sucesso. 
+--------------------------------------------------------------------------------
+2026-01-02 00:52:32,803 - INFO - ✅ Link capturado: https://s.shopee.com.br/4VWDeVUnX9
+2026-01-02 00:52:34,344 - INFO - ✅ Oferta 8 convertida com sucesso. 
+--------------------------------------------------------------------------------
+2026-01-02 00:52:38,505 - ERROR - ❌ Erro no conversor: Page.goto: Target page, context or browser has been closed
+Call log:
+  - navigating to "https://affiliate.shopee.com.br/offer/custom_link", waiting until "networkidle"
+❌
+2026-01-02 00:53:31,385 - INFO - 🧹 Manutenção: Nenhum registro antigo para remover.
+2026-01-02 00:53:31,430 - INFO - 
+----------------------------------------
+🤖 Sistema de Orquestração Iniciado.
+----------------------------------------
+2026-01-02 00:53:31,430 - INFO - 🔄 Verificando banco de dados...
+2026-01-02 00:53:31,431 - INFO - 📦 Links pendentes encontrados no banco. Pulando busca.
+--------------------------------------------------------------------------------
+2026-01-02 00:53:31,431 - INFO - 🔗 Iniciando conversão de lote...
+2026-01-02 00:53:40,510 - INFO - ✅ Link capturado: https://s.shopee.com.br/W04tEZ8b5
+2026-01-02 00:53:41,954 - INFO - ✅ Oferta 9 convertida com sucesso. 
+--------------------------------------------------------------------------------
+2026-01-02 00:53:49,331 - INFO - ✅ Link capturado: https://s.shopee.com.br/5q1bF2sV51
+2026-01-02 00:53:50,777 - INFO - ✅ Oferta 10 convertida com sucesso. 
+--------------------------------------------------------------------------------
+2026-01-02 00:53:57,720 - INFO - ✅ Link capturado: https://s.shopee.com.br/9AI3DBF0ac
+2026-01-02 00:53:59,041 - INFO - ✅ Oferta 11 convertida com sucesso. 
+--------------------------------------------------------------------------------
+2026-01-02 00:54:06,711 - INFO - ✅ Link capturado: https://s.shopee.com.br/7pmfcjxc3y
+2026-01-02 00:54:08,224 - INFO - ✅ Oferta 12 convertida com sucesso. 
+--------------------------------------------------------------------------------
+2026-01-02 00:54:14,701 - INFO - ✅ Link capturado: https://s.shopee.com.br/1Vsc56uvAp
+2026-01-02 00:54:16,222 - INFO - ✅ Oferta 13 convertida com sucesso. 
+--------------------------------------------------------------------------------
+2026-01-02 00:54:16,222 - INFO - 📱 Iniciando ciclo de 5 postagens... 
+--------------------------------------------------------------------------------
+2026-01-02 00:54:17,529 - INFO - 🚀 Tentando postar: Kit 10 Cuecas Boxer Microfibra...
+2026-01-02 00:54:28,637 - INFO - 📸 Aguardando 10s para carregar a prévia da imagem...
+2026-01-02 00:54:40,859 - INFO - ✅ Postado com sucesso: Kit 10 Cuecas Boxer 
+2026-01-02 00:54:42,005 - INFO - ⏳ Pausa de segurança: 22 minutos.
+--------------------------------------------------------------------------------
+2026-01-02 01:21:38,491 - INFO - 🧹 Manutenção: Nenhum registro antigo para remover.
+2026-01-02 01:21:45,266 - INFO - 
+----------------------------------------
+🤖 Sistema de Orquestração Iniciado.
+----------------------------------------
+2026-01-02 01:21:45,266 - INFO - 🔄 Verificando banco de dados...
+2026-01-02 01:21:45,352 - INFO - 📦 Links pendentes encontrados no banco. Pulando busca.
+--------------------------------------------------------------------------------
+2026-01-02 01:21:45,359 - INFO - 🔗 Iniciando conversão de lote...
+2026-01-02 01:21:52,416 - INFO - ✅ Link capturado: https://s.shopee.com.br/AUnQpY1OL9
+2026-01-02 01:21:53,954 - INFO - ✅ Oferta 14 convertida com sucesso. 
+--------------------------------------------------------------------------------
+2026-01-02 01:22:00,968 - INFO - ✅ Link capturado: https://s.shopee.com.br/30hPtm3D5C
+2026-01-02 01:22:02,333 - INFO - ✅ Oferta 15 convertida com sucesso. 
+--------------------------------------------------------------------------------
+2026-01-02 01:22:09,348 - INFO - ✅ Link capturado: https://s.shopee.com.br/1LZBuin5EL
+2026-01-02 01:22:10,874 - INFO - ✅ Oferta 16 convertida com sucesso. 
+--------------------------------------------------------------------------------
+2026-01-02 01:22:17,727 - INFO - ✅ Link capturado: https://s.shopee.com.br/6faiGX1yfV
+2026-01-02 01:22:19,439 - INFO - ✅ Oferta 17 convertida com sucesso. 
+--------------------------------------------------------------------------------
+2026-01-02 01:22:26,408 - ERROR - ❌ Erro no conversor: Page.goto: Target page, context or browser has been closed
+Call log:
+  - navigating to "https://affiliate.shopee.com.br/offer/custom_link", waiting until "networkidle"
+❌
+2026-01-02 01:25:26,914 - INFO - 
+----------------------------------------
+🤖 Sistema de Orquestração Iniciado.
+----------------------------------------
+2026-01-02 01:25:26,915 - INFO - 🔄 Verificando banco de dados...
+2026-01-02 01:25:27,482 - INFO - 📦 Links pendentes encontrados no banco. Pulando busca.
+--------------------------------------------------------------------------------
+2026-01-02 01:25:27,492 - INFO - 🔗 Iniciando conversão de lote...
+2026-01-02 01:25:34,625 - INFO - ✅ Link capturado: https://s.shopee.com.br/5q1bHE3xmE
+2026-01-02 01:25:36,225 - INFO - ✅ Oferta 18 convertida com sucesso. 
+--------------------------------------------------------------------------------
+2026-01-02 01:25:43,562 - INFO - ✅ Link capturado: https://s.shopee.com.br/W04vR1rdp
+2026-01-02 01:25:45,255 - INFO - ✅ Oferta 19 convertida com sucesso. 
+--------------------------------------------------------------------------------
+2026-01-02 01:25:50,103 - ERROR - ❌ Erro no conversor: Page.goto: Target page, context or browser has been closed
+Call log:
+  - navigating to "https://affiliate.shopee.com.br/offer/custom_link", waiting until "networkidle"
+❌
+2026-01-02 01:30:32,367 - INFO - 
+----------------------------------------
+🤖 Sistema de Orquestração Iniciado.
+----------------------------------------
+2026-01-02 01:30:32,367 - INFO - 🔄 Verificando banco de dados...
+2026-01-02 01:30:32,906 - INFO - 📦 Links pendentes encontrados no banco. Pulando busca.
+--------------------------------------------------------------------------------
+2026-01-02 01:30:32,915 - INFO - 🔗 Iniciando conversão de lote...
+2026-01-02 01:30:41,341 - INFO - 📱 Iniciando ciclo de 5 postagens... 
+--------------------------------------------------------------------------------
+2026-01-02 01:30:42,640 - INFO - 🚀 Tentando postar: Mochila Masculina Presente Esp...
+2026-01-02 01:30:53,390 - INFO - 📸 Aguardando 10s para carregar a prévia da imagem...
+2026-01-02 01:31:05,607 - INFO - ✅ Postado com sucesso: Mochila Masculina Pr
+2026-01-02 01:31:06,764 - INFO - ⏳ Pausa de segurança: 16 minutos.
+--------------------------------------------------------------------------------
+2026-01-02 01:35:22,655 - INFO - 📊 Resumo: 13 novas ofertas salvas no Banco de Dados.
+ Fechando busca de promoções.
+--------------------------------------------------------------------------------
+2026-01-02 01:47:38,813 - INFO - 
+========================================
+2026-01-02 01:47:38,815 - INFO - 🤖 VERIFICANDO FILA DE TRABALHO
+2026-01-02 01:47:38,858 - INFO - ========================================
+2026-01-02 01:47:38,868 - INFO - 📦 Links pendentes encontrados no banco. Pulando busca.
+2026-01-02 01:47:38,908 - INFO - 🔗 Convertendo links para afiliado...
+2026-01-02 01:47:40,332 - INFO - 🔄 Convertendo: https://shopee.com.br/Kit-5-Bermudas-Plu...
+2026-01-02 01:47:46,496 - INFO - 🔄 Convertendo: https://shopee.com.br/Relógio-De-Moda-Sm...
+2026-01-02 01:47:47,390 - INFO - 🔄 Convertendo: https://shopee.com.br/Kit-com-2-Shampoos...
+2026-01-02 01:47:48,197 - INFO - 🔄 Convertendo: https://shopee.com.br/Máscara-de-Hidrata...
+2026-01-02 01:47:49,564 - INFO - 🔄 Convertendo: https://shopee.com.br/Celular-IPhone-13-...
+2026-01-02 01:47:51,361 - INFO - 📱 Iniciando ciclo de postagem...
+2026-01-02 01:47:52,953 - INFO - 🚀 Tentando postar: saída de praia pareo lançament...
+2026-01-02 01:47:53,561 - INFO - ⏳ Aguardando carregamento do WhatsApp...
+2026-01-02 01:48:03,022 - INFO - 📸 Aguardando 10s para carregar prévia...
+2026-01-02 01:48:15,208 - INFO - ✅ Postado com sucesso: saída de praia pareo
+2026-01-02 01:48:16,489 - INFO - ⏳ Pausa de segurança: 24 minutos...
+2026-01-02 01:48:19,491 - INFO - 🛑 Interrompendo ciclo de postagens conforme solicitado.
+2026-01-02 01:48:19,495 - INFO - 
+✅ Ciclo finalizado com sucesso.
+2026-01-02 01:48:59,770 - INFO - 🧹 Manutenção: Nenhum registro antigo para remover.

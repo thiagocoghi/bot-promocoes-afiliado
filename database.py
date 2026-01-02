@@ -1,9 +1,6 @@
 import sqlite3
 from logs import log_info, log_erro
 
-if __name__ == "__main__":
-    adicionar_coluna_postada()
-
 def iniciar_db():
     conn = sqlite3.connect('ofertas.db')
     cursor = conn.cursor()
@@ -89,17 +86,19 @@ def marcar_como_postada(id_db):
     conn.commit()
     conn.close()
 
-def limpar_banco_de_dados(hora=5):
+def limpar_banco_de_dados(dias=5):
     """Remove ofertas antigas (postas ou não) para manter o DB leve."""
     conn = sqlite3.connect('ofertas.db')
     cursor = conn.cursor()
     try:
         # Note o uso de rowcount aqui
-        cursor.execute(f"DELETE FROM ofertas WHERE data_captura < datetime('now', '-{hora} hours')")
+        cursor.execute(f"DELETE FROM ofertas WHERE data_captura < datetime('now', '-{dias} days')")
         removidos = cursor.rowcount
         conn.commit()
         if removidos > 0:
             log_info(f"🧹 Manutenção: {removidos} registros antigos removidos.")
+        else:
+            log_info("🧹 Manutenção: Nenhum registro antigo para remover.")
     except Exception as e:
         log_erro(f"⚠️ Falha na limpeza do banco: {e}")
     finally:
