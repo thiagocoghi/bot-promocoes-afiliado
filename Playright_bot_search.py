@@ -3,6 +3,7 @@ import os
 import time
 import random
 from database import iniciar_db, salvar_oferta
+from logs import log_info, log_erro
 
 
 def buscar_promos_perfil_real():
@@ -81,12 +82,15 @@ def buscar_promos_perfil_real():
                         continue
             else:
                 print("⚠️ Nenhum produto encontrado na página.")
+                log_info("⚠️ Nenhum produto encontrado na página de Ofertas Relâmpago." + "-" * 80)
 
         except Exception as e:
             print(f"❌ Erro crítico: {e}")
+            log_erro(f"❌ Erro crítico na busca de promoções: {e}\n" + "-" * 80)
 
         finally:
             print(f"\n📊 Resumo: {novas_ofertas} novas ofertas salvas no Banco de Dados.")
+            log_info(f"📊 Resumo: {novas_ofertas} novas ofertas salvas no Banco de Dados.\n Fechando busca de promoções.\n" + "-" * 80)
             print("Encerrando...")
             time.sleep(5)
             context.close()

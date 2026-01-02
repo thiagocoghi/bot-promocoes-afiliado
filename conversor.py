@@ -2,6 +2,8 @@ from playwright.sync_api import sync_playwright
 import os
 import time
 from database import buscar_ofertas_nao_convertidas, atualizar_link_afiliado
+from logs import log_info, log_erro
+
 
 def converter_link_shopee(link_original):
     user_data_dir = os.path.join(os.getcwd(), "perfil_shopee")
@@ -41,13 +43,15 @@ def converter_link_shopee(link_original):
                 link_final = page.locator(seletor_modal_link).inner_text()
 
             if link_final:
-                print(f"✅ Link capturado do Modal: {link_final}")
+                log_info(f"✅ Link capturado: {link_final}")
+                print(f"✅ Link capturado: {link_final}")
                 return link_final.strip()
 
             return None
 
         except Exception as e:
             print(f"❌ Erro no conversor: {e}")
+            log_erro(f"❌ Erro no conversor: {e}❌")
             page.screenshot(path="debug_modal.png")  # Para análise caso mude de novo
             return None
         finally:
@@ -63,6 +67,7 @@ def executar_conversao_em_lote(limite=5):
     ofertas = buscar_ofertas_nao_convertidas(limite=limite)
 
     if not ofertas:
+        log_info("📭 info: Nenhuma oferta nova para converter no banco.")
         print("📭 info: Nenhuma oferta nova para converter no banco.")
         return False  # Retorna False para avisar o orquestrador que não houve trabalho
 
@@ -72,6 +77,8 @@ def executar_conversao_em_lote(limite=5):
         if link_afiliado:
             atualizar_link_afiliado(id_db, link_afiliado)
             print(f"✅ Oferta {id_db} convertida com sucesso.")
+            log_info(f"✅ Oferta {id_db} convertida com sucesso. \n" + "-" * 80)
         else:
             print(f"❌ Falha ao converter oferta {id_db}.")
+            log_erro(f"❌ Falha ao converter oferta {id_db}.❌")
     return True

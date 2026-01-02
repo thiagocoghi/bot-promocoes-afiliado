@@ -1,0 +1,56 @@
+2026-01-02 00:12:34,403 - ERROR - ❌ Erro crítico na busca de promoções: Page.goto: Target page, context or browser has been closed
+Call log:
+  - navigating to "https://shopee.com.br/flash_sale", waiting until "load"
+
+--------------------------------------------------------------------------------
+2026-01-02 00:12:34,404 - INFO - 📊 Resumo: 0 novas ofertas salvas no Banco de Dados.
+ Fechando busca de promoções.
+--------------------------------------------------------------------------------
+2026-01-02 00:20:45,752 - INFO - 🤖 Bot iniciado! Banco de dados conectado.
+2026-01-02 00:20:45,753 - INFO - 
+----------------------------------------
+🤖 Sistema de Orquestração Iniciado.
+----------------------------------------
+2026-01-02 00:20:45,753 - INFO - 💤 Horário de descanso (0h). Aguardando amanhecer...
+2026-01-02 00:20:56,813 - INFO - 🛑 Bot parado pelo usuário.
+2026-01-02 00:20:58,318 - INFO - 🤖 Bot iniciado! Banco de dados conectado.
+2026-01-02 00:20:58,318 - INFO - 
+----------------------------------------
+🤖 Sistema de Orquestração Iniciado.
+----------------------------------------
+2026-01-02 00:20:58,318 - INFO - 💤 Horário de descanso (0h). Aguardando amanhecer...
+2026-01-02 00:21:11,344 - INFO - 🛑 Bot parado pelo usuário.
+2026-01-02 00:21:11,812 - INFO - 🤖 Bot iniciado! Banco de dados conectado.
+2026-01-02 00:21:11,813 - INFO - 
+----------------------------------------
+🤖 Sistema de Orquestração Iniciado.
+----------------------------------------
+2026-01-02 00:21:11,813 - INFO - 🔄 Verificando banco de dados...
+2026-01-02 00:21:11,814 - INFO - 📭 Estoque vazio. Buscando novas promoções na Shopee...
+2026-01-02 00:21:33,341 - INFO - 📊 Resumo: 20 novas ofertas salvas no Banco de Dados.
+ Fechando busca de promoções.
+--------------------------------------------------------------------------------
+2026-01-02 00:21:39,619 - INFO - 🔗 Iniciando conversão de lote...
+2026-01-02 00:21:58,019 - INFO - ✅ Link capturado: https://s.shopee.com.br/9AI3AyzTsj
+2026-01-02 00:21:59,519 - INFO - ✅ Oferta 1 convertida com sucesso. 
+--------------------------------------------------------------------------------
+2026-01-02 00:22:06,725 - INFO - ✅ Link capturado: https://s.shopee.com.br/3VdgQZyeR8
+2026-01-02 00:22:07,962 - INFO - ✅ Oferta 2 convertida com sucesso. 
+--------------------------------------------------------------------------------
+2026-01-02 00:22:16,836 - INFO - ✅ Link capturado: https://s.shopee.com.br/13oG9u2cy
+2026-01-02 00:22:18,180 - INFO - ✅ Oferta 3 convertida com sucesso. 
+--------------------------------------------------------------------------------
+2026-01-02 00:22:24,863 - INFO - ✅ Link capturado: https://s.shopee.com.br/9KbTNJtdfo
+2026-01-02 00:22:26,333 - INFO - ✅ Oferta 4 convertida com sucesso. 
+--------------------------------------------------------------------------------
+2026-01-02 00:22:33,445 - INFO - ✅ Link capturado: https://s.shopee.com.br/W04r64rdb
+2026-01-02 00:22:34,874 - INFO - ✅ Oferta 5 convertida com sucesso. 
+--------------------------------------------------------------------------------
+2026-01-02 00:22:34,874 - INFO - 📱 Iniciando ciclo de 5 postagens... 
+--------------------------------------------------------------------------------
+2026-01-02 00:22:36,249 - INFO - 🚀 Tentando postar: Barra Fixa Flexão Porta Apoio ...
+2026-01-02 00:23:00,048 - INFO - 📸 Aguardando 10s para carregar a prévia da imagem...
+2026-01-02 00:23:12,761 - INFO - ✅ Postado com sucesso: Barra Fixa Flexão Po
+2026-01-02 00:23:14,168 - INFO - ⏳ Pausa de segurança: 20 minutos.
+--------------------------------------------------------------------------------
+2026-01-02 00:25:40,375 - INFO - 🛑 Bot parado pelo usuário.

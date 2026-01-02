@@ -1,17 +1,5 @@
 import sqlite3
-
-def adicionar_coluna_postada():
-    conn = sqlite3.connect('ofertas.db')
-    cursor = conn.cursor()
-    try:
-        # Adiciona a coluna 'postada' com valor padrão 0 (não postada)
-        cursor.execute("ALTER TABLE ofertas ADD COLUMN postada INTEGER DEFAULT 0")
-        conn.commit()
-        print("✅ Coluna 'postada' adicionada com sucesso!")
-    except sqlite3.OperationalError:
-        print("⚠️ A coluna 'postada' já existe ou a tabela não foi encontrada.")
-    finally:
-        conn.close()
+from logs import log_info, log_erro
 
 if __name__ == "__main__":
     adicionar_coluna_postada()
@@ -28,7 +16,7 @@ def iniciar_db():
             link_original TEXT UNIQUE,
             link_afiliado TEXT,
             data_captura TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-            enviado_whatsapp BOOLEAN DEFAULT FALSE
+            postada BOOLEAN DEFAULT FALSE
         )
     ''')
     conn.commit()
@@ -95,8 +83,24 @@ def marcar_como_postada(id_db):
     # Atualiza ambos os campos para manter o banco organizado
     cursor.execute('''
         UPDATE ofertas 
-        SET postada = 1, enviado_whatsapp = 1 
+        SET postada = 1
         WHERE id = ?
     ''', (id_db,))
     conn.commit()
     conn.close()
+
+def limpar_banco_de_dados(hora=5):
+    """Remove ofertas antigas (postas ou não) para manter o DB leve."""
+    conn = sqlite3.connect('ofertas.db')
+    cursor = conn.cursor()
+    try:
+        # Note o uso de rowcount aqui
+        cursor.execute(f"DELETE FROM ofertas WHERE data_captura < datetime('now', '-{hora} hours')")
+        removidos = cursor.rowcount
+        conn.commit()
+        if removidos > 0:
+            log_info(f"🧹 Manutenção: {removidos} registros antigos removidos.")
+    except Exception as e:
+        log_erro(f"⚠️ Falha na limpeza do banco: {e}")
+    finally:
+        conn.close()
