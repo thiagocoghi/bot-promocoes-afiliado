@@ -5,7 +5,8 @@ from playwright.sync_api import sync_playwright
 from database import buscar_proxima_oferta_para_postar, marcar_como_postada
 from logs import log_info, log_erro
 
-NOME_DO_GRUPO = "Obra"
+NOME_DO_GRUPO = "Ofertas para você"
+
 
 
 def calcular_desconto(de, por):
@@ -86,16 +87,10 @@ def postar_no_whatsapp(callback_log=None, checar_parada=None):
             campo_texto = page.locator('footer div[contenteditable="true"][data-tab="10"]')
             campo_texto.fill(mensagem)
             avisar("📸 Aguardando 10s para carregar prévia...")
-
-            # Sleep fragmentado de 10s para poder cancelar durante a espera da imagem
-            for _ in range(10):
-                if checar_parada and not checar_parada():
-                    avisar("🛑 Envio abortado durante o carregamento da imagem.")
-                    return False
-                time.sleep(1)
+            time.sleep(10)
 
             page.keyboard.press("Enter")
-            time.sleep(2)
+            time.sleep(5)
 
             marcar_como_postada(id_db)
             avisar(f"✅ Postado com sucesso: {nome[:20]}")

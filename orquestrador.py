@@ -22,7 +22,7 @@ def iniciar_sistema_automatico(callback_log=None, checar_parada=None):
 
     # Modo Dormir (00h às 07h) - Ajustado para -3h (Horário de Brasília comum) ou seu offset
     hora_atual = datetime.now().hour
-    hora_atual-=5
+    hora_atual-=0  # Ajuste de fuso horário se necessário
     if 0 <= hora_atual < 7:
         avisar(f"💤 Horário de descanso ({hora_atual}h).")
         return
