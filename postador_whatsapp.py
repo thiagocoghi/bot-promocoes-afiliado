@@ -1,16 +1,12 @@
-from playwright.sync_api import sync_playwright
 import os
 import time
-from database import buscar_proxima_oferta_para_postar, marcar_como_postada
+from datetime import datetime
+from playwright.sync_api import sync_playwright
+from database import buscar_proxima_oferta_para_postar, marcar_como_postada, buscar_oferta_aleatoria_pronta
 from logs import log_info, log_erro
 
-
-NOME_DO_GRUPO = "Obra"
-
-# --- A FUNÇÃO PRECISA ESTAR AQUI ---
 def calcular_desconto(de, por):
     try:
-        # Limpa as strings de preço para converter em número
         v_de = float(de.replace('R$', '').replace('.', '').replace(',', '.').strip())
         v_por = float(por.replace('R$', '').replace('.', '').replace(',', '.').strip())
         desconto = ((v_de - v_por) / v_de) * 100
@@ -18,75 +14,83 @@ def calcular_desconto(de, por):
     except:
         return None
 
-def postar_no_whatsapp():
-    oferta = buscar_proxima_oferta_para_postar()
+def postar_no_whatsapp(callback_log=None, checar_parada=None, usuario="padrao", termo_pesquisa="", modo_aleatorio=False, nome_grupo=""):
+    def avisar(texto):
+        if callback_log: callback_log(texto)
+        print(texto)
+        log_info(texto)
+
+    if checar_parada and not checar_parada(): return False
+
+    # Escolha da oferta (Normal ou Aleatória)
+    if modo_aleatorio:
+        oferta = buscar_oferta_aleatoria_pronta(usuario=usuario)
+    else:
+        oferta = buscar_proxima_oferta_para_postar(termo=termo_pesquisa, usuario=usuario)
 
     if not oferta:
-        print("📭 Nenhuma oferta pronta para postar.")
-        log_info("📭 Fila vazia no banco de dados.")
+        avisar(f"📭 Nenhuma oferta pronta disponível.")
         return False
 
     id_db, nome, preco_atual, preco_antigo, link = oferta
-
     porcentagem = calcular_desconto(preco_antigo, preco_atual)
-    tag_topo = f"🔥 {porcentagem}% DE DESCONTO!" if porcentagem else "🔥 OFERTA RELÂMPAGO!"
-    # Limpa o final do nome se ele tiver a porcentagem da Shopee
     nome_limpo = nome.split('(-')[0].strip()
+
+    # Formatação da mensagem
+    if preco_antigo != "---" and porcentagem:
+        tag_topo = f"🔥 {porcentagem}% DE DESCONTO!"
+        bloco_preco = f"❌ De: ~~{preco_antigo}~~\n✅ Por: *{preco_atual}*"
+    else:
+        tag_topo = "🔥 OFERTA IMPERDÍVEL!"
+        bloco_preco = f"💰 Preço Especial: *{preco_atual}*"
 
     mensagem = (
         f"{tag_topo}\n\n"
         f"📦 *{nome_limpo}*\n\n"
-        f"❌ De: ~~{preco_antigo}~~\n"
-        f"✅ Por: *{preco_atual}*\n\n"
+        f"{bloco_preco}\n\n"
         f"🛒 *Compre aqui:* {link}\n\n"
         f"⚠️ _Preço sujeito a alteração a qualquer momento!_"
     )
 
-    user_data_dir = os.path.join(os.getcwd(), "perfil_shopee")
+    user_data_dir = os.path.join(os.getcwd(), f"perfil_{usuario}")
 
-    # Usamos o 'with' para garantir o fechamento do Playwright
     with sync_playwright() as p:
-        browser = p.chromium.launch_persistent_context(user_data_dir, headless=False)
+        browser = p.chromium.launch_persistent_context(
+            user_data_dir,
+            headless=False,
+            args=["--disable-blink-features=AutomationControlled"]
+        )
         page = browser.new_page()
 
         try:
-            log_info(f"🚀 Tentando postar: {nome[:30]}...")
+            avisar(f"🚀 Acessando WhatsApp para postar no grupo: {nome_grupo}...")
             page.goto("https://web.whatsapp.com")
-            print("⏳ Aguardando WhatsApp...")
             page.wait_for_selector('div[contenteditable="true"][data-tab="3"]', timeout=60000)
 
-            # Busca e seleciona o grupo/contato
-            page.fill('div[contenteditable="true"][data-tab="3"]', NOME_DO_GRUPO)
+            # Busca o grupo usando o nome vindo da interface
+            page.fill('div[contenteditable="true"][data-tab="3"]', nome_grupo)
             time.sleep(2)
             page.keyboard.press("Enter")
             time.sleep(2)
 
-            # Escreve e envia
+            # Preenche a mensagem
             campo_texto = page.locator('footer div[contenteditable="true"][data-tab="10"]')
             campo_texto.fill(mensagem)
-            log_info("📸 Aguardando 10s para carregar a prévia da imagem...")
-            time.sleep(10)  # Tempo para revisar a mensagem antes de enviar
-            page.keyboard.press("Enter")
-            time.sleep(2)  # Espera o envio processar
 
-            marcar_como_postada(id_db)
-            log_info(f"✅ Postado com sucesso: {nome[:20]}")
-            print(f"✅ Postado com sucesso: {nome[:20]}")
+            avisar("📸 Aguardando prévia da imagem...")
+            for _ in range(15):
+                if checar_parada and not checar_parada(): return False
+                time.sleep(1)
+
+            page.keyboard.press("Enter")
+            time.sleep(5)
+
+            marcar_como_postada(id_db, usuario=usuario)
+            avisar(f"✅ Sucesso: {nome[:20]}")
             return True
 
         except Exception as e:
-            # Captura de tela em caso de erro
-            print(f"❌ Erro detectado. Tirando print da tela...")
-            log_erro("❌ Erro durante postagem no WhatsApp, verifique o print.")
-            if not os.path.exists("prints_erro"):
-                os.makedirs("prints_erro")
-
-            timestamp = datetime.now().strftime("%H-%M-%S")
-            caminho_print = f"prints_erro/erro_{id_db}_{timestamp}.png"
-            page.screenshot(path=caminho_print)
-
-            log_erro(f"Falha na postagem ID {id_db}: {e}. Print salvo em: {caminho_print}")
+            avisar(f"❌ Erro na postagem: {e}")
             return False
-
         finally:
             browser.close()

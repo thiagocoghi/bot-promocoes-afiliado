@@ -1,12 +1,76 @@
 from playwright.sync_api import sync_playwright
 import os
 import time
-from database import buscar_ofertas_nao_convertidas, atualizar_link_afiliado
+from database import atualizar_link_afiliado, buscar_ofertas_por_termo_para_converter
 from logs import log_info, log_erro
 
+def converter_link_shopee(page, link_original, callback_log=None, checar_parada=None):
+    """
+    Versão otimizada: Recebe a 'page' aberta e realiza a conversão.
+    """
+    def avisar(texto):
+        if callback_log: callback_log(texto)
+        print(texto)
+        log_info(texto)
 
-def converter_link_shopee(link_original):
-    user_data_dir = os.path.join(os.getcwd(), "perfil_shopee")
+    try:
+        if checar_parada and not checar_parada():
+            return None
+
+        avisar(f"🔄 Convertendo: {link_original[:40]}...")
+
+        # Garante que está na página de link personalizado
+        if "custom_link" not in page.url:
+            page.goto("https://affiliate.shopee.com.br/offer/custom_link", wait_until="networkidle", timeout=60000)
+
+        if checar_parada and not checar_parada(): return None
+
+        # Localiza e preenche o link
+        textarea = page.wait_for_selector('textarea', timeout=20000)
+        textarea.fill("")
+        textarea.fill(link_original)
+
+        # Clica no botão de gerar
+        page.click('button:has-text("Obter Link"), button:has-text("Get Link")')
+
+        # Espera o modal de sucesso com o link pronto
+        seletor_modal_link = ".success-modal-content textarea"
+        page.wait_for_selector(seletor_modal_link, timeout=15000)
+
+        link_final = page.locator(seletor_modal_link).input_value()
+
+        if link_final and "shopee.com.br" in link_final:
+            page.keyboard.press("Escape") # Fecha o modal para o próximo item
+            return link_final.strip()
+
+        return None
+
+    except Exception as e:
+        if "closed" in str(e).lower() or "target" in str(e).lower():
+            return None
+        if "timeout" in str(e).lower():
+            avisar("⚠️ Timeout na Shopee. Tentando limpar para o próximo...")
+            page.reload()
+            return None
+
+        avisar(f"❌ Erro no conversor: {e}")
+        log_erro(f"Erro no conversor: {e}")
+        return None
+
+
+def executar_conversao_em_lote(limite=5, callback_log=None, checar_parada=None, usuario="padrao", termo_pesquisa=""):
+    """
+    Agora filtra as ofertas pelo TERMO_PESQUISA para evitar misturar categorias.
+    """
+    # ALTERAÇÃO CHAVE: Busca apenas o que pertence ao assunto atual
+    ofertas = buscar_ofertas_por_termo_para_converter(termo=termo_pesquisa, limite=limite, usuario=usuario)
+
+    if not ofertas:
+        msg = f"📭 Sem ofertas de '{termo_pesquisa or 'Flash Sale'}' para converter."
+        if callback_log: callback_log(msg)
+        return False
+
+    user_data_dir = os.path.join(os.getcwd(), f"perfil_{usuario}")
 
     with sync_playwright() as p:
         browser = p.chromium.launch_persistent_context(
@@ -16,69 +80,18 @@ def converter_link_shopee(link_original):
         )
         page = browser.new_page()
 
-        try:
-            print(f"🔄 Convertendo: {link_original[:50]}...")
-            page.goto("https://affiliate.shopee.com.br/offer/custom_link", wait_until="networkidle")
+        for id_db, link_original in ofertas:
+            if checar_parada and not checar_parada():
+                break
 
-            # 1. Preenche o link
-            page.wait_for_selector('textarea', timeout=20000)
-            page.fill('textarea', link_original)
+            link_afiliado = converter_link_shopee(page, link_original, callback_log, checar_parada)
 
-            # 2. Clica no botão de gerar
-            page.click('button:has-text("Obter Link"), button:has-text("Get Link")')
+            if link_afiliado:
+                atualizar_link_afiliado(id_db, link_afiliado, usuario=usuario)
+                if callback_log: callback_log(f"✅ Oferta {id_db} convertida e salva!")
+            else:
+                if callback_log: callback_log(f"❌ Falha na oferta {id_db}")
 
-            print("⏳ Aguardando Pop-up de sucesso...")
+        browser.close()
 
-            # 3. Espera o modal aparecer usando a classe que você identificou
-            # Vamos esperar especificamente pela textarea dentro do modal
-            seletor_modal_link = ".success-modal-content textarea"
-            page.wait_for_selector(seletor_modal_link, timeout=15000)
-
-            # 4. CAPTURA DO LINK
-            # No caso de textareas, usamos .input_value() ou .inner_text()
-            link_final = page.locator(seletor_modal_link).input_value()
-
-            if not link_final or "shopee.com.br" not in link_final:
-                # Backup caso o input_value falhe
-                link_final = page.locator(seletor_modal_link).inner_text()
-
-            if link_final:
-                log_info(f"✅ Link capturado: {link_final}")
-                print(f"✅ Link capturado: {link_final}")
-                return link_final.strip()
-
-            return None
-
-        except Exception as e:
-            print(f"❌ Erro no conversor: {e}")
-            log_erro(f"❌ Erro no conversor: {e}❌")
-            page.screenshot(path="debug_modal.png")  # Para análise caso mude de novo
-            return None
-        finally:
-            browser.close()
-
-    # Certifique-se de que NÃO existam espaços antes do 'def' abaixo
-
-
-def executar_conversao_em_lote(limite=5):
-    """Busca links brutos no banco e converte para link de afiliado."""
-    from database import buscar_ofertas_nao_convertidas, atualizar_link_afiliado
-
-    ofertas = buscar_ofertas_nao_convertidas(limite=limite)
-
-    if not ofertas:
-        log_info("📭 info: Nenhuma oferta nova para converter no banco.")
-        print("📭 info: Nenhuma oferta nova para converter no banco.")
-        return False  # Retorna False para avisar o orquestrador que não houve trabalho
-
-    for id_db, link_original in ofertas:
-        link_afiliado = converter_link_shopee(link_original)
-
-        if link_afiliado:
-            atualizar_link_afiliado(id_db, link_afiliado)
-            print(f"✅ Oferta {id_db} convertida com sucesso.")
-            log_info(f"✅ Oferta {id_db} convertida com sucesso. \n" + "-" * 80)
-        else:
-            print(f"❌ Falha ao converter oferta {id_db}.")
-            log_erro(f"❌ Falha ao converter oferta {id_db}.❌")
     return True

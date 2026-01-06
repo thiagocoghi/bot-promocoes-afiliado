@@ -1,35 +1,73 @@
 import sqlite3
+import os
 from logs import log_info, log_erro
 
-if __name__ == "__main__":
-    adicionar_coluna_postada()
 
-def iniciar_db():
-    conn = sqlite3.connect('ofertas.db')
+def get_db_name(usuario):
+    """Gera o nome do arquivo de banco de dados baseado no usuário."""
+    nome_limpo = usuario.strip().lower().replace(" ", "_")
+    return f"ofertas_{nome_limpo}.db"
+
+
+def iniciar_db(usuario="padrao"):
+    db_name = get_db_name(usuario)
+    conn = sqlite3.connect(db_name)
     cursor = conn.cursor()
+
     cursor.execute('''
-        CREATE TABLE IF NOT EXISTS ofertas (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            nome TEXT,
-            preco_atual TEXT,
-            preco_antigo TEXT,
-            link_original TEXT UNIQUE,
-            link_afiliado TEXT,
-            data_captura TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-            postada BOOLEAN DEFAULT FALSE
-        )
-    ''')
+                   CREATE TABLE IF NOT EXISTS ofertas
+                   (
+                       id
+                       INTEGER
+                       PRIMARY
+                       KEY
+                       AUTOINCREMENT,
+                       nome
+                       TEXT,
+                       preco_atual
+                       TEXT,
+                       preco_antigo
+                       TEXT,
+                       link_original
+                       TEXT
+                       UNIQUE,
+                       link_afiliado
+                       TEXT,
+                       data_captura
+                       TIMESTAMP
+                       DEFAULT
+                       CURRENT_TIMESTAMP,
+                       postada
+                       BOOLEAN
+                       DEFAULT
+                       FALSE,
+                       termo_busca
+                       TEXT
+                       DEFAULT
+                       ''
+                   )
+                   ''')
+
+    # Garantia de compatibilidade se o banco já existir
+    try:
+        cursor.execute("ALTER TABLE ofertas ADD COLUMN termo_busca TEXT DEFAULT ''")
+    except:
+        pass
+
     conn.commit()
     conn.close()
 
-def salvar_oferta(nome, preco_atual, preco_antigo, link):
-    conn = sqlite3.connect('ofertas.db')
+
+def salvar_oferta(nome, preco_atual, preco_antigo, link, termo="", usuario="padrao"):
+    db_name = get_db_name(usuario)
+    termo_limpo = termo.strip().lower() if termo else "flash_sale"
+    conn = sqlite3.connect(db_name)
     cursor = conn.cursor()
     try:
         cursor.execute('''
-            INSERT INTO ofertas (nome, preco_atual, preco_antigo, link_original)
-            VALUES (?, ?, ?, ?)
-        ''', (nome, preco_atual, preco_antigo, link))
+                       INSERT INTO ofertas (nome, preco_atual, preco_antigo, link_original, termo_busca)
+                       VALUES (?, ?, ?, ?, ?)
+                       ''', (nome, preco_atual, preco_antigo, link, termo_limpo))
         conn.commit()
         return True
     except sqlite3.IntegrityError:
@@ -38,69 +76,97 @@ def salvar_oferta(nome, preco_atual, preco_antigo, link):
         conn.close()
 
 
-def buscar_ofertas_nao_convertidas(limite=5):
-    """Retorna links originais que ainda precisam passar pelo conversor."""
-    conn = sqlite3.connect('ofertas.db')
+def buscar_ofertas_por_termo_para_converter(termo="", limite=5, usuario="padrao"):
+    db_name = get_db_name(usuario)
+    termo_limpo = termo.strip().lower() if termo else "flash_sale"
+    conn = sqlite3.connect(db_name)
     cursor = conn.cursor()
-    # Pega apenas links que não foram convertidos E não foram postados
-    cursor.execute("SELECT id, link_original FROM ofertas WHERE link_afiliado IS NULL AND postada = 0 LIMIT ?", (limite,))
+    cursor.execute('''
+                   SELECT id, link_original
+                   FROM ofertas
+                   WHERE link_afiliado IS NULL
+                     AND postada = 0
+                     AND termo_busca = ? LIMIT ?
+                   ''', (termo_limpo, limite))
     resultado = cursor.fetchall()
     conn.close()
     return resultado
 
-def atualizar_link_afiliado(id_oferta, link_convertido):
-    conn = sqlite3.connect('ofertas.db')
+
+def atualizar_link_afiliado(id_oferta, link_convertido, usuario="padrao"):
+    db_name = get_db_name(usuario)
+    conn = sqlite3.connect(db_name)
     cursor = conn.cursor()
-    cursor.execute('''
-        UPDATE ofertas 
-        SET link_afiliado = ? 
-        WHERE id = ?
-    ''', (link_convertido, id_oferta))
+    cursor.execute('UPDATE ofertas SET link_afiliado = ? WHERE id = ?', (link_convertido, id_oferta))
     conn.commit()
     conn.close()
 
-# Inicializa o banco ao importar este módulo
-#iniciar_db()
 
-def buscar_proxima_oferta_para_postar():
-    conn = sqlite3.connect('ofertas.db')
+def buscar_proxima_oferta_para_postar(termo="", usuario="padrao"):
+    db_name = get_db_name(usuario)
+    termo_limpo = termo.strip().lower() if termo else "flash_sale"
+    conn = sqlite3.connect(db_name)
     cursor = conn.cursor()
-    # Garantimos que pegamos apenas onde postada é ZERO
     cursor.execute('''
-        SELECT id, nome, preco_atual, preco_antigo, link_afiliado 
-        FROM ofertas 
-        WHERE link_afiliado IS NOT NULL AND postada = 0
-        ORDER BY id ASC LIMIT 1
-    ''')
+                   SELECT id, nome, preco_atual, preco_antigo, link_afiliado
+                   FROM ofertas
+                   WHERE link_afiliado IS NOT NULL
+                     AND postada = 0
+                     AND termo_busca = ?
+                   ORDER BY id ASC LIMIT 1
+                   ''', (termo_limpo,))
     oferta = cursor.fetchone()
     conn.close()
     return oferta
 
-# No database.py:
-def marcar_como_postada(id_db):
-    conn = sqlite3.connect('ofertas.db')
+
+def marcar_como_postada(id_db, usuario="padrao"):
+    db_name = get_db_name(usuario)
+    conn = sqlite3.connect(db_name)
     cursor = conn.cursor()
-    # Atualiza ambos os campos para manter o banco organizado
-    cursor.execute('''
-        UPDATE ofertas 
-        SET postada = 1
-        WHERE id = ?
-    ''', (id_db,))
+    cursor.execute('UPDATE ofertas SET postada = 1 WHERE id = ?', (id_db,))
     conn.commit()
     conn.close()
 
-def limpar_banco_de_dados(hora=5):
-    """Remove ofertas antigas (postas ou não) para manter o DB leve."""
-    conn = sqlite3.connect('ofertas.db')
+
+def contar_ofertas_pendentes(termo="", usuario="padrao"):
+    db_name = get_db_name(usuario)
+    termo_limpo = termo.strip().lower() if termo else "flash_sale"
+    conn = sqlite3.connect(db_name)
+    cursor = conn.cursor()
+    cursor.execute("SELECT COUNT(*) FROM ofertas WHERE postada = 0 AND termo_busca = ?", (termo_limpo,))
+    total = cursor.fetchone()[0]
+    conn.close()
+    return total
+
+
+def limpar_banco_de_dados(dias=5, usuario="padrao"):
+    db_name = get_db_name(usuario)
+    conn = sqlite3.connect(db_name)
     cursor = conn.cursor()
     try:
-        # Note o uso de rowcount aqui
-        cursor.execute(f"DELETE FROM ofertas WHERE data_captura < datetime('now', '-{hora} hours')")
+        cursor.execute(f"DELETE FROM ofertas WHERE data_captura < datetime('now', '-{dias} days')")
         removidos = cursor.rowcount
         conn.commit()
-        if removidos > 0:
-            log_info(f"🧹 Manutenção: {removidos} registros antigos removidos.")
+        log_info(f"🧹 Manutenção ({usuario}): {removidos} registros removidos.")
     except Exception as e:
-        log_erro(f"⚠️ Falha na limpeza do banco: {e}")
+        log_erro(f"⚠️ Falha na limpeza do banco ({usuario}): {e}")
     finally:
         conn.close()
+
+def buscar_oferta_aleatoria_pronta(usuario="padrao"):
+    import sqlite3
+    db_name = f"ofertas_{usuario.strip().lower().replace(' ', '_')}.db"
+    conn = sqlite3.connect(db_name)
+    cursor = conn.cursor()
+    # Pega qualquer item que tenha link_afiliado, não foi postado, em ordem aleatória
+    cursor.execute('''
+        SELECT id, nome, preco_atual, preco_antigo, link_afiliado
+        FROM ofertas
+        WHERE link_afiliado IS NOT NULL
+          AND postada = 0
+        ORDER BY RANDOM() LIMIT 1
+    ''')
+    oferta = cursor.fetchone()
+    conn.close()
+    return oferta
